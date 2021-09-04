@@ -10,7 +10,7 @@ import java.net.Socket;
 public class Server {
     public static final int PORT = 8081;
 
-    public static void main() throws IOException {
+    public static void main() throws IOException, InterruptedException {
         System.out.println("Server started...");
 
         try
@@ -20,30 +20,36 @@ public class Server {
                 BufferedReader reader = new BufferedReader(
                         new InputStreamReader(clientSocket.getInputStream()));
                 ) {
-            System.out.println("New connection");
-            String message = reader.readLine();
-            writer.println("Received: \"" + message + "\" from port " + clientSocket.getPort());
+            Thread.sleep(500);
+            System.out.println("Установлено новое соединение");
+            if (!printCorrectRequest(reader,
+                    "Получен запрос из порта " + clientSocket.getPort() + " -> ")) return;
+            System.out.println("...");
+            Thread.sleep(1000);
+            int stringCounter = 0;
+            boolean isEnough = false;
+            while(!isEnough && stringCounter < Ulysses.TEXT.length) {
+                writer.println("<<\t- " + Ulysses.TEXT[stringCounter]);
+                isEnough = !printCorrectRequest(reader, "");
+                stringCounter += 2;
+            }
         }
+
+
     }
 
-//    public static void main() throws Exception {
-//        System.out.println("Server started");
-//        int port = 8089;
-//
-//        while (true) {
-//            ServerSocket serverSocket = new ServerSocket(port);
-//            Socket clientSocket = serverSocket.accept();
-//            PrintWriter out = new PrintWriter(clientSocket.getOutputStream());
-//            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-//
-//            System.out.printf("New connection accepted, port %d%n", clientSocket.getPort());
-//
-//            final String name = in.readLine();
-//            System.out.println(name);
-//            out.println(String.format("Hi, %s. Your port is %d", name, clientSocket.getPort()));
-//            //Thread.sleep(500);
-//            System.out.println("Server stopped");
-//            serverSocket.close();
-//         }
-//    }
+    private static boolean printCorrectRequest(BufferedReader reader, String prefix)
+            throws IOException, InterruptedException {
+        String request = reader.readLine();
+        if (request == null || request.isEmpty()
+                || request.toLowerCase().contains("хватит")
+                || request.toLowerCase().contains("достаточно")
+                || request.toLowerCase().contains("прекрати")
+                || request.toLowerCase().contains("остановись")
+                || request.toLowerCase().contains("стоп")
+        ) return false;
+        Thread.sleep(1500);
+        System.out.println(prefix + request);
+        return true;
+    }
 }

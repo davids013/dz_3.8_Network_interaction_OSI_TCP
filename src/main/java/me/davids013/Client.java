@@ -10,37 +10,34 @@ import java.net.Socket;
 public class Client {
     private final static int PORT = Server.PORT;
 
-    public static void main() throws IOException {
-        System.out.println("\tClient connected");
-        String host = "localhost";
+    public static void main() throws IOException, InterruptedException {
+        System.out.println("\tClient runned");
+        String host = "netology.homework";
         InetAddress inetAddress = InetAddress.getByName(host);
         System.out.println("\t" + host + ", ip address: " + inetAddress.getHostAddress());
         try (Socket clientSocket = new Socket(host, PORT);
-             PrintWriter out = new
-                     PrintWriter(clientSocket.getOutputStream(), true);
-             BufferedReader in = new BufferedReader(new
-                     InputStreamReader(clientSocket.getInputStream()))) {
-            out.println("Get respond. Host: " + host);
-            String resp = in.readLine();
-            System.out.println("\t" + resp);
+             PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
+            writer.println(host + ", давай почитаем Теннисона");
+            for (int i = 1; i < 8; i += 2) {
+                if (i >= Ulysses.TEXT.length) break;
+                writer.println(">>\t- " + Ulysses.TEXT[i]);
+                printCorrectRespond(reader, "");
+            }
+//            printCorrectRespond(reader, "");
+//            writer.println(">>\t- Бесплодных этих скал, под мирной кровлей");
+//            printCorrectRespond(reader, "");
+//            writer.println(">>\t- Учу законам этот темный люд? –");
+//            printCorrectRespond(reader, "");
+            writer.println("\tСпасибо. Хватит.");
+            while (reader.readLine() != null);
         }
     }
 
-//    public static void main() {
-//        String host = "127.0.0.1";
-//        int port = 8089;
-//
-//        try(Socket clientSocket = new Socket(host, port);
-//            PrintWriter out = new
-//                    PrintWriter(clientSocket.getOutputStream(), true);
-//            BufferedReader in = new BufferedReader(new
-//                    InputStreamReader(clientSocket.getInputStream()))) {
-//
-//            out.println("Netology");
-//            String resp = in.readLine();
-//            System.out.println(123 + resp);
-//        }   catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    private static void printCorrectRespond(BufferedReader reader, String prefix)
+            throws IOException, InterruptedException {
+        String respond = reader.readLine();
+        Thread.sleep(300);
+        System.out.println(prefix + respond);
+    }
 }
